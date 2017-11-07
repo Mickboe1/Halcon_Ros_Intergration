@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/mickboe1/git/Halcon_Ros_Intergration/catkin_ws/devel/setup.sh
