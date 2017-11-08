@@ -49,7 +49,7 @@ namespace HalconCpp{
     //image callback functions used in the chain or from a camera.
     void callback(const sensor_msgs::Image& source){
       //init the halcon objects used in the algorithm
-      HObject  ho_Image, ho_Regions, ho_ImageMean;
+      HObject  ho_Image, ho_Regions, ho_ImageMean, ho_RegionErosion;
 
       //getting the image pointer from the asr-halcon-bridge and take the image
       halcon_bridge::HalconImagePtr halcon_bridge_imagePointer = halcon_bridge::toHalconCopy(source);
@@ -68,8 +68,9 @@ namespace HalconCpp{
         THIS ALGORITHM CONTAINS: Treshold
         It first takes a value from the ros parameters and treshholds.
       */
-      Threshold(ho_Image, &ho_Regions, _value, 255);
-      RegionToMean(ho_Regions, ho_Image, &ho_ImageMean);
+      Threshold(ho_Image, &ho_Regions, 10, 255);
+      ErosionCircle(ho_Regions, &ho_RegionErosion, _value);
+      RegionToMean(ho_RegionErosion, ho_Image, &ho_ImageMean);
       /*
         HERE IS WHERE THE ALGORITHM ENDS
       */
@@ -77,7 +78,7 @@ namespace HalconCpp{
       //Display the region if it is enabled.
       if(_display){
         w.ClearWindow();
-        ((HRegion)ho_Regions).DispRegion(w);
+        ((HRegion)ho_RegionErosion).DispRegion(w);
       }
 
       //transform the image back to a ROS-Image message and publish it.

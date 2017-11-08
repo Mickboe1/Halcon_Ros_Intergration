@@ -14,8 +14,8 @@
     <param name="autosize" value="true" />
   </node>
 
-  <node name="treshold1" pkg="ros_halcon_bridge" type="treshhold" output="screen">
-    <param name="algorithm_ns" value="test" />
+  <node name="treshold1" pkg="ros_halcon_bridge" type="treshhold">
+    <param name="algorithm_ns" value="algorithm1" />
     <param name="firstInLine" value="true" />
     <param name="input" value="/usb_cam/image_raw" />
     <param name="lastInLine" value="false" />
@@ -27,34 +27,34 @@
     <!-- <param name="~offsetY" value="0" /> -->
   </node>
 
-  <node name="treshold2" pkg="ros_halcon_bridge" type="treshhold" output="screen">
-    <param name="algorithm_ns" value="test" />
+  <node name="erosion1" pkg="ros_halcon_bridge" type="erosion" output="screen">
+    <param name="algorithm_ns" value="algorithm1" />
     <param name="firstInLine" value="false" />
     <!-- <param name="input" value="/usb_cam/image_raw" /> -->
     <param name="lastInLine" value="false" />
     <!-- <param name="output" value="/halcon_output_image" /> -->
     <param name="order" value="2" />
-    <param name="value" value="128" />
+    <param name="value" value="5" />
     <param name="display" value="false" />
     <!-- <param name="offsetX" value="0" /> -->
     <!-- <param name="offsetY" value="700" /> -->
   </node>
 
-  <node name="treshold3" pkg="ros_halcon_bridge" type="treshhold" output="screen">
-    <param name="algorithm_ns" value="test" />
+  <node name="dilation1" pkg="ros_halcon_bridge" type="dilation" output="screen">
+    <param name="algorithm_ns" value="algorithm1" />
     <param name="firstInLine" value="false" />
     <!-- <param name="input" value="/usb_cam/image_raw" /> -->
     <param name="lastInLine" value="true" />
     <param name="output" value="/halcon_output_image" />
     <param name="order" value="3" />
-    <param name="value" value="128" />
+    <param name="value" value="5" />
     <param name="display" value="false" />
-    <!-- <param name="offsetX" value="700" /> -->
+    <!-- <param name="offsetX" value="0" /> -->
     <!-- <param name="offsetY" value="700" /> -->
   </node>
 
   <node name="result" pkg="image_view" type="image_view" respawn="false" output="screen">
-    <remap from="image" to="/test/halcon_output_image"/>
+    <remap from="image" to="/algorithm1/halcon_output_image"/>
     <param name="autosize" value="true" />
   </node>
 
