@@ -14,15 +14,15 @@
     <param name="autosize" value="true" />
   </node>
 
-  <node name="legos" pkg="ros_halcon_bridge" type="legos" output="screen">
+  <node name="legos" pkg="ros_halcon_bridge" type="legos">
     <param name="algorithm_ns" value="algorithm1" />
     <param name="firstInLine" value="true" />
     <param name="input" value="/usb_cam/image_raw" />
     <param name="lastInLine" value="true" />
-    <param name="output" value="/halcon_output_image" />
+    <param name="output" value="/lego_position" />
     <param name="order" value="1" />
-    <param name="min" value="128" />
-    <param name="max" value="255" />
+    <!-- <param name="min" value="128" /> -->
+    <!-- <param name="max" value="255" /> -->
     <param name="display" value="true" />
     <param name="~offsetX" value="700" />
     <param name="~offsetY" value="0" />

@@ -6,11 +6,24 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   asr_halcon_bridge
+  message_generation
+)
+add_message_files(
+   FILES
+   Lego.msg
+)
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
 )
 
 catkin_package(
     LIBRARIES ${PROJECT_NAME}
+    CATKIN_DEPENDS message_runtime
 )
+
+
 
 
 include_directories(include ${catkin_INCLUDE_DIRS})

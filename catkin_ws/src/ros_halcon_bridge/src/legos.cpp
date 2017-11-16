@@ -10,9 +10,11 @@
 #include <sstream>
 #include <math.h>
 #include "halcon_image.h"
+#include <exception>
+
 #include "sensor_msgs/Image.h"
 #include "std_msgs/Empty.h"
-#include <exception>
+#include "ros_halcon_bridge/Lego.h"
 
 using namespace std;
 #include <string>
@@ -118,43 +120,51 @@ namespace HalconCpp{
         EllipticAxis(ho_RegionDilation2, &hv_Ra, &hv_Rb, &hv_Phi);
         AreaCenter(ho_RegionDilation2, &hv_Area, &hv_Row, &hv_Column);
 
-
-        ClearWindow(w);
-       ((HImage)ho_Image).DispImage(w);
-       SetColor(w,"cyan");
-       DispLine(w, 235, 315, 245, 325);
-       DispLine(w, 235, 325, 245, 315);
-
         hv_arrow_length = 100;
         hv_Arc = hv_Phi;
         hv_Phi = hv_Phi-1.5707;
 
-        TupleCos(hv_Phi, &hv_Cos);
-        TupleSin(hv_Phi, &hv_Sin);
-        std::cout << "rb " << hv_Rb.D() << " ra " << hv_Ra.D() << " w " << width << " h " << height <<  '\n';
-        std::cout <<  " pxbycm " << pxbycm << " lw " << hv_Rb.D() * 2 / pxbycm << " lh " <<  hv_Ra.D() * 2 / pxbycm <<'\n';
+
+
+
+
+       if(_display){
+         TupleCos(hv_Phi, &hv_Cos);
+         TupleSin(hv_Phi, &hv_Sin);
+
+         ClearWindow(w);
+        ((HImage)ho_Image).DispImage(w);
+        SetColor(w,"cyan");
+        DispLine(w, 235, 315, 245, 325);
+        DispLine(w, 235, 325, 245, 315);
+
          DispArrow(w, (float)hv_Row, (float)hv_Column, (float)hv_Row+((float)hv_arrow_length*(float)hv_Cos), (float)hv_Column+((float)hv_arrow_length*(float)hv_Sin), 1);
+         SetColor(w,"yellow");
+         DispArrow(w, 0, hv_Column, hv_Row, hv_Column,1);
+         DispArrow(w, hv_Row, 0, hv_Row, hv_Column,1);
 
+         SetColor(w,"orange");
+         DispLine(w, hv_Row, hv_Column, hv_Row, hv_Column + 50);
+         DispArc(w, hv_Row, hv_Column,  - 3.1415 - (float)hv_Arc, hv_Row, hv_Column + 50);
 
-         DispLine(w, 0, hv_Column, hv_Row, hv_Column);
-         DispLine(w, hv_Row, 0, hv_Row, hv_Column);
-         DispArc(w, hv_Row, hv_Column,  (float)hv_Phi, hv_Row, hv_Column + 50);
+         std::cout << "rb " << hv_Rb.D() << " ra " << hv_Ra.D() << " w " << width << " h " << height <<  '\n';
+         std::cout <<  " pxbycm " << pxbycm << " lw " << hv_Rb.D() * 2 / pxbycm << " lh " <<  hv_Ra.D() * 2 / pxbycm <<'\n';
          std::cout << "x "<< (float)hv_Column / pxbycm << " y " << (float)hv_Row / pxbycm << " Theta " << (float)hv_Phi <<  '\n';
+
+       }
 
          /*
            HERE IS WHERE THE ALGORITHM ENDS
          */
+         ros_halcon_bridge::Lego lego;
+         lego.pose.position.x     = (float)hv_Column / pxbycm;
+         lego.pose.position.y     = (float)hv_Row / pxbycm;
+         lego.pose.orientation.z  = (float)hv_Phi;
+         lego.width               = hv_Rb.D() * 2 / pxbycm;
+         lego.lenght              = hv_Ra.D() * 2 / pxbycm;
+         lego.height              = 2.5;
 
-         //Display the region if it is enabled.
-         // if(_display){
-         //   w.ClearWindow();
-         //   ((HImage)ho_ImageSub).DispImage(w);
-         // }
-         //
-         // //transform the image back to a ROS-Image message and publish it.
-         // halcon_bridge_imagePointer->image = new HalconCpp::HImage(ho_ImageSub);
-         // sensor_msgs::ImagePtr image_message = halcon_bridge_imagePointer->toImageMsg();
-         // pub.publish(image_message);;
+         pub.publish(lego);;
       }
       catch (HalconCpp::HTupleAccessException& e)
       {
@@ -201,10 +211,10 @@ namespace HalconCpp{
 
       // setup the publisher
       if(_lastInLine){
-      	pub = nhCom.advertise<sensor_msgs::Image>(_algorithm_ns + "/" + _output, 10);
+      	pub = nhCom.advertise<ros_halcon_bridge::Lego>(_algorithm_ns + "/" + _output, 10);
       }
       else{
-        pub = nhCom.advertise<sensor_msgs::Image>(_algorithm_ns + "/" + to_string(_order), 10);
+        pub = nhCom.advertise<ros_halcon_bridge::Lego>(_algorithm_ns + "/" + to_string(_order), 10);
       }
 
       //setup the subscriber

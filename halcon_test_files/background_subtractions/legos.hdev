@@ -57,6 +57,8 @@
 <l>* disp_arc (600, Row + 50, Column, Phi + 1.5707,  Row+ arrow_length * Cos, Column + arrow_length * Sin)</l>
 <l>arc := -3.1415 - Phi</l>
 <l>disp_arc (600, Row, Column, arc , Row, Column + 50)</l>
+<l>disp_message (600, arc, 'window', Row, Column, 'black', 'true')</l>
+<l>disp_text_button (600, 'Text', 'window', Row, Column, 'black', 'gray')</l>
 </body>
 <docu id="main">
 <parameters/>
