@@ -21,6 +21,9 @@ halcon_bridge::HalconImagePtr img;
 
 //bool used to init the window
 bool inited;
+bool frame_inited;
+
+int check = 0;
 
 //variables created by ros parameters
 bool    _firstInLine;
@@ -33,10 +36,12 @@ int     _order;
 int     _offsetX;
 int     _offsetY;
 bool    _display;
+int     _mul;
 
 namespace HalconCpp{
     //halconCPP global variables
     HalconCpp::HWindow w;
+    HObject ho_Background;
 
     // Tostring function used to transform numbers to text
     string to_string(int _number){
@@ -49,7 +54,7 @@ namespace HalconCpp{
     //image callback functions used in the chain or from a camera.
     void callback(const sensor_msgs::Image& source){
       //init the halcon objects used in the algorithm
-      HObject  ho_Image, ho_Regions, ho_ImageMean, ho_RegionErosion;
+      HObject  ho_ImageSub, ho_Image;
 
       //getting the image pointer from the asr-halcon-bridge and take the image
       halcon_bridge::HalconImagePtr halcon_bridge_imagePointer = halcon_bridge::toHalconCopy(source);
@@ -65,12 +70,18 @@ namespace HalconCpp{
 
       /*
         HERE IS WHERE THE ALGORITHM BEGINS AND CAN BE IF SO WISHED.
-        THIS ALGORITHM CONTAINS: Erosion
-        uses circle erosion with the size of the value parameter
+        THIS ALGORITHM CONTAINS: needs a steady camera for background extraction,
+        the first one frame will be transformed into the background.
       */
-      Threshold(ho_Image, &ho_Regions, 10, 255);
-      ErosionCircle(ho_Regions, &ho_RegionErosion, _value);
-      RegionToMean(ho_RegionErosion, ho_Image, &ho_ImageMean);
+      if(frame_inited){
+        // SubImage(ho_Image, ho_Background, &ho_ImageSub, _mul, _value);
+        AbsDiffImage(ho_Image, ho_Background, &ho_ImageSub, 1);
+      }
+      else{
+        ho_Background = ho_Image;
+        frame_inited = true;
+        return;
+      }
       /*
         HERE IS WHERE THE ALGORITHM ENDS
       */
@@ -78,11 +89,11 @@ namespace HalconCpp{
       //Display the region if it is enabled.
       if(_display){
         w.ClearWindow();
-        ((HRegion)ho_RegionErosion).DispRegion(w);
+        ((HImage)ho_ImageSub).DispImage(w);
       }
 
       //transform the image back to a ROS-Image message and publish it.
-      halcon_bridge_imagePointer->image = new HalconCpp::HImage(ho_ImageMean);
+      halcon_bridge_imagePointer->image = new HalconCpp::HImage(ho_ImageSub);
       sensor_msgs::ImagePtr image_message = halcon_bridge_imagePointer->toImageMsg();
       pub.publish(image_message);
     }
@@ -119,6 +130,9 @@ namespace HalconCpp{
         _offsetX = 0;
       if(!nh.getParam("offsetY", _offsetY))
         _offsetY = 0;
+      if(!nh.getParam("multiply", _mul))
+        _mul = 1;
+
 
       // setup the publisher
       if(_lastInLine){
@@ -138,6 +152,7 @@ namespace HalconCpp{
 
       //set the window initzializer to false
       inited = false;
+      frame_inited = false;
     }
   }
 

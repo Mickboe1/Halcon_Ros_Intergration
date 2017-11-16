@@ -1,0 +1,50 @@
+<launch>
+  <node name="usb_cam" pkg="usb_cam" type="usb_cam_node" output="screen" >
+    <param name="video_device" value="/dev/video1" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="yuyv" />
+    <param name="camera_frame_id" value="usb_cam" />
+    <param name="io_method" value="mmap"/>
+    <param name="framerate" value="10"/>
+  </node>
+
+  <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+    <remap from="image" to="/usb_cam/image_raw"/>
+    <param name="autosize" value="true" />
+  </node>
+
+  <node name="background_extraction1" pkg="ros_halcon_bridge" type="background_extraction" output="screen">
+    <param name="algorithm_ns" value="algorithm1" />
+    <param name="firstInLine" value="true" />
+    <param name="input" value="/usb_cam/image_raw" />
+    <param name="lastInLine" value="false" />
+    <!-- <param name="output" value="/halcon_output_image" /> -->
+    <param name="order" value="1  " />
+    <param name="display" value="false" />
+    <!-- <param name="offsetX" value="700" /> -->
+    <!-- <param name="offsetY" value="700" /> -->
+    <param name="multiply" value="1" />
+    <param name="value" value="128" />
+  </node>
+
+  <node name="treshold1" pkg="ros_halcon_bridge" type="treshhold" output="screen">
+    <param name="algorithm_ns" value="algorithm1" />
+    <param name="firstInLine" value="false" />
+    <param name="lastInLine" value="true" />
+    <param name="output" value="/halcon_output_image" />
+    <param name="order" value="2" />
+    <param name="min" value="30" />
+    <param name="max" value="255" />
+    <param name="display" value="true" />
+    <param name="offsetX" value="700" />
+    <param name="offsetY" value="0" />
+  </node>
+
+  <node name="result" pkg="image_view" type="image_view" respawn="false" output="screen">
+    <remap from="image" to="/algorithm1/halcon_output_image"/>
+    <param name="autosize" value="true" />
+  </node>
+
+
+</launch>

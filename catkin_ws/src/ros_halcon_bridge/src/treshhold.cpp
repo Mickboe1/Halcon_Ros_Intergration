@@ -27,12 +27,14 @@ bool    _firstInLine;
 string  _input;
 bool    _lastInLine;
 string  _output;
-int     _value;
+int     _min;
+int     _max;
 string  _algorithm_ns;
 int     _order;
 int     _offsetX;
 int     _offsetY;
 bool    _display;
+
 
 namespace HalconCpp{
     //halconCPP global variables
@@ -68,7 +70,8 @@ namespace HalconCpp{
         THIS ALGORITHM CONTAINS: Treshold
         It first takes a value from the ros parameters and treshholds.
       */
-      Threshold(ho_Image, &ho_Regions, _value, 255);
+
+      Threshold(ho_Image, &ho_Regions, _min, _max);
       RegionToMean(ho_Regions, ho_Image, &ho_ImageMean);
       /*
         HERE IS WHERE THE ALGORITHM ENDS
@@ -108,12 +111,14 @@ namespace HalconCpp{
         _output = "/halcon_output_image";
       if(!nh.getParam("algorithm_ns", _algorithm_ns))
         _algorithm_ns = "/halcon";
-      if(!nh.getParam("value", _value))
-        _value = 128;
+      if(!nh.getParam("min", _min))
+        _min = 128;
+      if(!nh.getParam("max", _max))
+        _max = 255;
       if(!nh.getParam("order", _order))
         _order = 1;
       if(!nh.getParam("display", _display))
-        _value = true;
+        _display = true;
       if(!nh.getParam("offsetX", _offsetX))
         _offsetX = 0;
       if(!nh.getParam("offsetY", _offsetY))

@@ -65,8 +65,8 @@ namespace HalconCpp{
 
       /*
         HERE IS WHERE THE ALGORITHM BEGINS AND CAN BE IF SO WISHED.
-        THIS ALGORITHM CONTAINS: Treshold
-        It first takes a value from the ros parameters and treshholds.
+        THIS ALGORITHM CONTAINS: Dilation
+        uses circle dilation with the size of the value parameter
       */
       Threshold(ho_Image, &ho_Regions, 10, 255);
       DilationCircle(ho_Regions, &ho_RegionDilation, _value);
